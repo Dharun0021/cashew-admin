@@ -84,23 +84,41 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     final isMobile = ResponsiveLayout.isMobile(context);
 
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: isMobile
-          ? SidebarNavigation(
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-                _scaffoldKey.currentState?.closeDrawer();
-              },
-            )
-          : null,
-      body: Row(
-        children: [
-          // Render persistent sidebar on Desktop/Tablet
-          if (!isMobile)
+    if (isMobile) {
+      // Mobile Layout: Header is fixed at the top using Scaffold appBar
+      return Scaffold(
+        key: _scaffoldKey,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: HeaderBar(
+            title: _pageTitles[_selectedIndex],
+            showMenuButton: isMobile,
+            onMenuPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
+          ),
+        ),
+        drawer: SidebarNavigation(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+            _scaffoldKey.currentState?.closeDrawer();
+          },
+        ),
+        body: Container(
+          color: AppColors.background,
+          child: _buildSelectedScreen(),
+        ),
+      );
+    } else {
+      // Desktop/Tablet Layout
+      return Scaffold(
+        key: _scaffoldKey,
+        body: Row(
+          children: [
+            // Persistent sidebar on Desktop/Tablet
             SidebarNavigation(
               selectedIndex: _selectedIndex,
               onDestinationSelected: (index) {
@@ -110,32 +128,30 @@ class _MainLayoutState extends State<MainLayout> {
               },
               isCollapsed: ResponsiveLayout.isTablet(context),
             ),
-          
-          // Main content area
-          Expanded(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: kToolbarHeight + 1.0,
-                  child: HeaderBar(
+            
+            // Main content area
+            Expanded(
+              child: Column(
+                children: [
+                  HeaderBar(
                     title: _pageTitles[_selectedIndex],
-                    showMenuButton: isMobile,
+                    showMenuButton: false,
                     onMenuPressed: () {
                       _scaffoldKey.currentState?.openDrawer();
                     },
                   ),
-                ),
-                Expanded(
-                  child: Container(
-                    color: AppColors.background,
-                    child: _buildSelectedScreen(),
+                  Expanded(
+                    child: Container(
+                      color: AppColors.background,
+                      child: _buildSelectedScreen(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
   }
 }

@@ -3,12 +3,13 @@ class EnvConfig {
   static const String environment = String.fromEnvironment('ENV', defaultValue: 'local');
 
   // API Base URLs
+  // Simply uncomment the one you want to use:
   static String get apiBaseUrl {
-    if (environment == 'production') {
-      return 'https://cashnew-backend.onrender.com/api';
-    } else {
-      return 'http://localhost:5000/api';
-    }
+    // Uncomment for PRODUCTION:
+    // return 'https://cashnew-backend.onrender.com/api';
+    
+    // Uncomment for LOCAL:
+    return 'http://localhost:5000/api';
   }
 
   // Category Endpoints

@@ -26,7 +26,7 @@ class ProductModel {
     required this.isFeatured,
     required this.image,
     required this.description,
-    required this.kg,
+    this.kg = 0.0,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -36,18 +36,28 @@ class ProductModel {
     final description = (json['description'] ?? '')?.toString() ?? '';
     final image = (json['image'] ?? '')?.toString() ?? '';
     
+    // Parse price safely
     double price = 0.0;
-    if (json['amount'] != null) {
-      price = (json['amount'] as num).toDouble();
-    } else if (json['price'] != null) {
-      price = (json['price'] as num).toDouble();
+    try {
+      if (json['amount'] != null && json['amount'] != '') {
+        price = (json['amount'] as num).toDouble();
+      } else if (json['price'] != null && json['price'] != '') {
+        price = (json['price'] as num).toDouble();
+      }
+    } catch (e) {
+      price = 0.0;
     }
 
+    // Parse discount price safely
     double? discountPrice;
-    if (json['discountAmount'] != null) {
-      discountPrice = (json['discountAmount'] as num).toDouble();
-    } else if (json['discountPrice'] != null) {
-      discountPrice = (json['discountPrice'] as num).toDouble();
+    try {
+      if (json['discountAmount'] != null && json['discountAmount'] != '') {
+        discountPrice = (json['discountAmount'] as num).toDouble();
+      } else if (json['discountPrice'] != null && json['discountPrice'] != '') {
+        discountPrice = (json['discountPrice'] as num).toDouble();
+      }
+    } catch (e) {
+      discountPrice = null;
     }
 
     final isFeatured = json['isFeatured'] == true;
@@ -86,6 +96,16 @@ class ProductModel {
       categoryName = json['category'].toString();
     }
 
+    // Parse kg safely
+    double kg = 0.0;
+    try {
+      if (json['kg'] != null && json['kg'] != '') {
+        kg = (json['kg'] as num).toDouble();
+      }
+    } catch (e) {
+      kg = 0.0;
+    }
+
     return ProductModel(
       id: id,
       name: name,
@@ -99,7 +119,7 @@ class ProductModel {
       isFeatured: isFeatured,
       image: image,
       description: description,
-      kg: (json['kg'] != null ? (json['kg'] as num).toDouble() : 0.0),
+      kg: kg,
     );
   }
 
@@ -144,7 +164,7 @@ class ProductModel {
       category: category ?? this.category,
       categoryId: categoryId ?? this.categoryId,
       price: price ?? this.price,
-      discountPrice: discountPrice != null ? discountPrice : this.discountPrice, // Let it be null-friendly if not updated
+      discountPrice: discountPrice ?? this.discountPrice,
       stock: stock ?? this.stock,
       status: status ?? this.status,
       isFeatured: isFeatured ?? this.isFeatured,
@@ -155,8 +175,14 @@ class ProductModel {
   }
 
   // Helper getters
-  double get activePrice => discountPrice ?? price;
-  bool get hasDiscount => discountPrice != null && discountPrice! < price;
+  double get activePrice {
+    if (discountPrice != null && discountPrice! > 0) {
+      return discountPrice!;
+    }
+    return price > 0 ? price : 0.0;
+  }
+  
+  bool get hasDiscount => discountPrice != null && discountPrice! > 0 && discountPrice! < price;
   bool get isLowStock => stock > 0 && stock <= 10;
   bool get isOutOfStock => stock <= 0;
 }

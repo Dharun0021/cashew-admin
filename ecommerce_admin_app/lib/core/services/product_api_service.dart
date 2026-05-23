@@ -45,6 +45,8 @@ class ProductApiService {
     required double amount,
     required double discountAmount,
     required bool inStock,
+    required bool isFeatured,
+    required int stock,
     required File imageFile,
     required double kg,
   }) async {
@@ -60,6 +62,8 @@ class ProductApiService {
           'amount': amount.toString(),
           'discountAmount': discountAmount.toString(),
           'inStock': inStock.toString(),
+          'isFeatured': isFeatured.toString(),
+          'stock': stock.toString(),
           'kg': kg.toString(),
         },
       );
@@ -82,6 +86,8 @@ class ProductApiService {
     required double amount,
     required double discountAmount,
     required bool inStock,
+    required bool isFeatured,
+    required int stock,
     File? imageFile,
     required double kg,
   }) async {
@@ -99,6 +105,8 @@ class ProductApiService {
           'amount': amount.toString(),
           'discountAmount': discountAmount.toString(),
           'inStock': inStock.toString(),
+          'isFeatured': isFeatured.toString(),
+          'stock': stock.toString(),
           'kg': kg.toString(),
         },
         method: 'PUT',

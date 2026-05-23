@@ -82,6 +82,8 @@ class ProductProvider extends ChangeNotifier {
     required double amount,
     required double discountAmount,
     required bool inStock,
+    required bool isFeatured,
+    required int stock,
     required File imageFile,
     required double kg,
   }) async {
@@ -97,6 +99,8 @@ class ProductProvider extends ChangeNotifier {
         amount: amount,
         discountAmount: discountAmount,
         inStock: inStock,
+        isFeatured: isFeatured,
+        stock: stock,
         imageFile: imageFile,
         kg: kg,
       );
@@ -119,6 +123,8 @@ class ProductProvider extends ChangeNotifier {
     required double amount,
     required double discountAmount,
     required bool inStock,
+    required bool isFeatured,
+    required int stock,
     File? imageFile,
     required double kg,
   }) async {
@@ -135,6 +141,8 @@ class ProductProvider extends ChangeNotifier {
         amount: amount,
         discountAmount: discountAmount,
         inStock: inStock,
+        isFeatured: isFeatured,
+        stock: stock,
         imageFile: imageFile,
         kg: kg,
       );

@@ -28,6 +28,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   late TextEditingController _discountPriceController;
   late TextEditingController _descriptionController;
   late TextEditingController _kgController;
+  late TextEditingController _stockController;
 
   String? _selectedCategoryName;
   String? _selectedCategoryId;
@@ -46,6 +47,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _discountPriceController = TextEditingController(text: p?.discountPrice?.toString() ?? '');
     _descriptionController = TextEditingController(text: p?.description ?? '');
     _kgController = TextEditingController(text: p?.kg.toString() ?? '');
+    _stockController = TextEditingController(text: p?.stock.toString() ?? '');
     _inStock = (p?.stock ?? 0) > 0;
     
     if (p != null) {
@@ -63,6 +65,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _discountPriceController.dispose();
     _descriptionController.dispose();
     _kgController.dispose();
+    _stockController.dispose();
     super.dispose();
   }
 
@@ -110,7 +113,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       final double kg = _kgController.text.trim().isNotEmpty
           ? double.parse(_kgController.text.trim())
           : 0.0;
-      final int stock = _inStock ? 100 : 0;
+      final int stock = _stockController.text.trim().isNotEmpty
+          ? int.parse(_stockController.text.trim())
+          : 0;
+      
+      // Automatically set inStock based on stock quantity
+      _inStock = stock > 0;
 
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
@@ -126,6 +134,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             amount: price,
             discountAmount: discountPrice ?? 0.0,
             inStock: _inStock,
+            isFeatured: _isFeatured,
+            stock: stock,
             imageFile: _selectedImage!,
             kg: kg,
           );
@@ -139,6 +149,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             amount: price,
             discountAmount: discountPrice ?? 0.0,
             inStock: _inStock,
+            isFeatured: _isFeatured,
+            stock: stock,
             imageFile: _selectedImage,
             kg: kg,
           );
@@ -249,25 +261,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
 
-                        // Stock Toggle Switch - Replace manual entry
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text(
-                            'In Stock',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                          ),
-                          subtitle: const Text(
-                            'Toggle to mark product as available',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          value: _inStock,
-                          activeColor: AppColors.primary,
-                          onChanged: (val) {
-                            setState(() {
-                              _inStock = val;
-                            });
+                        // Stock Quantity - Vertical Layout
+                        CustomTextField(
+                          labelText: 'Stock Quantity',
+                          hintText: 'e.g. 100',
+                          controller: _stockController,
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value!.isEmpty) return 'Stock is required';
+                            if (int.tryParse(value) == null) return 'Enter a valid number';
+                            return null;
                           },
                         ),
                         const SizedBox(height: 24),
