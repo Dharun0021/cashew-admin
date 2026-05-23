@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../models/product_model.dart';
-import '../core/constants/app_constants.dart';
-import '../core/services/mock_api_service.dart';
+import '../core/services/product_api_service.dart';
 
 class ProductProvider extends ChangeNotifier {
   List<ProductModel> _products = [];
   bool _isLoading = false;
+  String _errorMessage = '';
   
   String _searchQuery = '';
   String _selectedCategoryFilter = 'All';
   String _selectedStatusFilter = 'All';
 
+  ProductApiService? _apiService;
+
+  ProductApiService get apiService {
+    _apiService ??= ProductApiService();
+    return _apiService!;
+  }
+
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
   String get selectedCategoryFilter => _selectedCategoryFilter;
   String get selectedStatusFilter => _selectedStatusFilter;
+  String get errorMessage => _errorMessage;
 
   List<ProductModel> get products {
     return _products.where((p) {
@@ -36,18 +45,18 @@ class ProductProvider extends ChangeNotifier {
   List<ProductModel> get featuredProducts => _products.where((p) => p.isFeatured).toList();
 
   Future<void> loadProducts() async {
-    if (_products.isNotEmpty) return;
-    
     _isLoading = true;
+    _errorMessage = '';
     notifyListeners();
 
-    await MockApiService.simulateNetworkCall();
-
-    _products = AppConstants.mockProducts
-        .map((p) => ProductModel.fromJson(p))
-        .toList();
-
-    _isLoading = false;
+    try {
+      _products = await apiService.getProducts();
+      _isLoading = false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      print('Error loading products: $e');
+    }
     notifyListeners();
   }
 
@@ -66,44 +75,98 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addProduct(ProductModel product) async {
+  Future<void> addProduct({
+    required String productName,
+    required String categoryId,
+    required String description,
+    required double amount,
+    required double discountAmount,
+    required bool inStock,
+    required File imageFile,
+    required double kg,
+  }) async {
     _isLoading = true;
+    _errorMessage = '';
     notifyListeners();
 
-    await MockApiService.simulateNetworkCall();
+    try {
+      final newProduct = await apiService.addProduct(
+        productName: productName,
+        categoryId: categoryId,
+        description: description,
+        amount: amount,
+        discountAmount: discountAmount,
+        inStock: inStock,
+        imageFile: imageFile,
+        kg: kg,
+      );
 
-    final newProduct = product.copyWith(
-      id: 'p${_products.length + 1}',
-    );
-
-    _products.add(newProduct);
-    _isLoading = false;
+      _products.add(newProduct);
+      _isLoading = false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      print('Error adding product: $e');
+    }
     notifyListeners();
   }
 
-  Future<void> editProduct(ProductModel updatedProduct) async {
+  Future<void> editProduct({
+    required String id,
+    required String productName,
+    required String categoryId,
+    required String description,
+    required double amount,
+    required double discountAmount,
+    required bool inStock,
+    File? imageFile,
+    required double kg,
+  }) async {
     _isLoading = true;
+    _errorMessage = '';
     notifyListeners();
 
-    await MockApiService.simulateNetworkCall();
+    try {
+      final updatedProduct = await apiService.updateProduct(
+        id: id,
+        productName: productName,
+        categoryId: categoryId,
+        description: description,
+        amount: amount,
+        discountAmount: discountAmount,
+        inStock: inStock,
+        imageFile: imageFile,
+        kg: kg,
+      );
 
-    final index = _products.indexWhere((p) => p.id == updatedProduct.id);
-    if (index != -1) {
-      _products[index] = updatedProduct;
+      final index = _products.indexWhere((p) => p.id == id);
+      if (index != -1) {
+        _products[index] = updatedProduct;
+      }
+
+      _isLoading = false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      print('Error editing product: $e');
     }
-
-    _isLoading = false;
     notifyListeners();
   }
 
   Future<void> deleteProduct(String id) async {
     _isLoading = true;
+    _errorMessage = '';
     notifyListeners();
 
-    await MockApiService.simulateNetworkCall();
-
-    _products.removeWhere((p) => p.id == id);
-    _isLoading = false;
+    try {
+      await apiService.deleteProduct(id);
+      _products.removeWhere((p) => p.id == id);
+      _isLoading = false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      print('Error deleting product: $e');
+    }
     notifyListeners();
   }
 

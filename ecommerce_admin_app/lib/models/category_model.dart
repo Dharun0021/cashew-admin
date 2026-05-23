@@ -12,18 +12,23 @@ class CategoryModel {
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    // Handle different API response formats
+    final id = (json['_id'] ?? json['id'] ?? '')?.toString() ?? '';
+    final name = (json['categoryName'] ?? json['name'] ?? '')?.toString() ?? '';
+    final image = (json['image'] ?? '')?.toString() ?? '';
+    final productCount = (json['productCount'] as num?)?.toInt() ?? 0;
+
     return CategoryModel(
-      id: json['id'],
-      name: json['name'],
-      image: json['image'],
-      productCount: json['productCount'] ?? 0,
+      id: id,
+      name: name,
+      image: image,
+      productCount: productCount,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'name': name,
+      'categoryName': name,
       'image': image,
       'productCount': productCount,
     };
