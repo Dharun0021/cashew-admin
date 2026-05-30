@@ -141,9 +141,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               : CustomTable(
                                   columns: [
                                     CustomTableColumn(title: 'Image', width: 60),
-                                    CustomTableColumn(title: 'Product Details'),
+                                    CustomTableColumn(title: 'Product Name'),
                                     CustomTableColumn(title: 'Price', width: 100),
-                                    CustomTableColumn(title: 'Featured', width: 80, alignment: Alignment.center),
                                     CustomTableColumn(title: 'Actions', width: 100, alignment: Alignment.centerRight),
                                   ],
                                   rowCount: products.length,
@@ -167,21 +166,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                           ),
                                         );
                                       case 1:
-                                        return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              product.name,
-                                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            Text(
-                                              product.category,
-                                              style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-                                            ),
-                                          ],
+                                        return Text(
+                                          product.name,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         );
                                       case 2:
                                         return Column(
@@ -204,16 +193,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                           ],
                                         );
                                       case 3:
-                                        return IconButton(
-                                          icon: Icon(
-                                            product.isFeatured ? Icons.star : Icons.star_border,
-                                            color: product.isFeatured ? Colors.amber : AppColors.textLight,
-                                          ),
-                                          onPressed: () {
-                                            productProvider.toggleFeatured(product.id);
-                                          },
-                                        );
-                                      case 4:
                                         return Row(
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
